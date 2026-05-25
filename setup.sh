@@ -6,6 +6,19 @@ PROFILE=$HOME/.bashrc
 OHMYZSH=$HOME/.oh-my-zsh
 ZSHRC=$HOME/.zshrc
 
+OS=$(uname)
+
+# Install a package using the right package manager for the current OS.
+# Mac uses Homebrew; Ubuntu/Debian uses apt. Skips silently on unknown OS.
+install_package() {
+  local pkg=$1
+  case "$OS" in
+    Darwin) brew install "$pkg" ;;
+    Linux)  sudo apt-get install -y "$pkg" ;;
+    *) echo "Unknown OS '$OS' — skipping install of $pkg" ;;
+  esac
+}
+
 HELP="
 Usage:
   $0 all        # Install all the things
@@ -141,8 +154,12 @@ if [ "$brew" = true ]; then
   echo "Homebrew"
   #######################
 
-  if [[ ! -d /opt/homebrew/Cellar ]] && [[ ! -d /usr/local/Cellar ]]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+  if [[ "$OS" == "Darwin" ]]; then
+    if [[ ! -d /opt/homebrew/Cellar ]] && [[ ! -d /usr/local/Cellar ]]; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+  else
+    echo "Skipping Homebrew on $OS (using apt instead)"
   fi
 
   echo ""
@@ -153,8 +170,12 @@ if [ "$node" = true ]; then
   echo "Node"
   #######################
 
-  if [[ ! -f /opt/homebrew/bin/node ]]; then
-    brew install node
+  if ! command -v node >/dev/null 2>&1; then
+    install_package nodejs
+    # On Ubuntu, npm ships as a separate package.
+    if [[ "$OS" == "Linux" ]] && ! command -v npm >/dev/null 2>&1; then
+      install_package npm
+    fi
   fi
 fi
 
@@ -162,13 +183,19 @@ if [ "$vim" = true ]; then
   #######################
   echo "Vim"
 
-  ln -sv $SCRIPTPATH/.vim/ $HOME/.vim
+  install_package neovim
+
+  ln -sfv $SCRIPTPATH/.vim/ $HOME/.vim
   ln -sfv $SCRIPTPATH/.vimrc $HOME/.vimrc
   ln -sfv $SCRIPTPATH/.gvimrc $HOME/.gvimrc
-  mkdir $SCRIPTPATH/.vim-tmp
+  mkdir -p $SCRIPTPATH/.vim-tmp
 
-  # Install plugins
-  vim +PlugInstall +qall
+  # Install plugins. Prefer nvim since the .aliases file points vi/vim at it.
+  if command -v nvim >/dev/null 2>&1; then
+    nvim +PlugInstall +qall
+  elif command -v vim >/dev/null 2>&1; then
+    vim +PlugInstall +qall
+  fi
 
   echo ""
 fi
@@ -190,11 +217,17 @@ if [ "$tmux" = true ]; then
 
   update_profile=true
 
-  brew install tmuxinator
-  brew install reattach-to-user-namespace
+  install_package tmuxinator
+  # reattach-to-user-namespace exists only on macOS (clipboard integration).
+  # On Linux, the tmux config uses xclip for the system clipboard.
+  if [[ "$OS" == "Darwin" ]]; then
+    install_package reattach-to-user-namespace
+  else
+    install_package xclip
+  fi
 
   ln -sfv $SCRIPTPATH/.tmux.conf $HOME/.tmux.conf
-  ln -sv $SCRIPTPATH/tmuxinator $HOME/.tmuxinator
+  ln -sfv $SCRIPTPATH/tmuxinator $HOME/.tmuxinator
 
   ln -sfv $SCRIPTPATH/.tmux-completion $HOME/.tmux-completion
   ln -sfv $SCRIPTPATH/.tmuxinator-completion $HOME/.tmuxinator-completion
@@ -240,7 +273,12 @@ if [ "$jshint" = true ]; then
   echo "JSHint"
   #######################
 
-  npm install -g jshint
+  # On Ubuntu, apt-installed npm needs root for global installs.
+  if [[ "$OS" == "Linux" ]]; then
+    sudo npm install -g jshint
+  else
+    npm install -g jshint
+  fi
   ln -sfv $SCRIPTPATH/.jshintrc $HOME/.jshintrc
 
   echo ""
@@ -266,8 +304,10 @@ if [ "$bash" = true ]; then
   ln -sfv $SCRIPTPATH/.exports $HOME/.exports
   ln -sfv $SCRIPTPATH/.aliases $HOME/.aliases
   ln -sfv $SCRIPTPATH/.projects $HOME/.projects
-  ln -sfv $SCRIPTPATH/.brew-completion $HOME/.brew-completion
-  
+  if [[ "$OS" == "Darwin" ]]; then
+    ln -sfv $SCRIPTPATH/.brew-completion $HOME/.brew-completion
+  fi
+
   echo ""
 fi
 
@@ -287,9 +327,20 @@ if [ "$zsh" = true ]; then
 
   update_zshrc=true
 
+  if ! command -v zsh >/dev/null 2>&1; then
+    install_package zsh
+  fi
+
   if [[ ! -d "$OHMYZSH" ]]; then
     echo "Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  fi
+
+  # Make zsh the default login shell if it isn't already.
+  zsh_path=$(command -v zsh)
+  if [ -n "$zsh_path" ] && [ "$(basename "${SHELL:-}")" != "zsh" ]; then
+    echo "Changing default shell to $zsh_path (you may be prompted for your password)..."
+    chsh -s "$zsh_path"
   fi
 
   echo ""
@@ -328,7 +379,9 @@ if [ "$update_profile" = true ]; then
     add_to_profile 'complete -C path/to/tilde/lib/rake-complete.rb -o default rake'
   fi
 
-  add_to_profile 'source ~/.brew-completion'
+  if [[ "$OS" == "Darwin" ]]; then
+    add_to_profile 'source ~/.brew-completion'
+  fi
 fi
 
 if [ "$update_zshrc" = true ]; then

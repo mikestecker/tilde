@@ -2,10 +2,15 @@ export EDITOR=vi
 export TZ=America/New_York
 export PATH=$PATH:~/.local/bin
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 export PGGSSENCMODE="disable"
-export LDFLAGS="-L$(brew --prefix openssl@3)/lib"
-export CPPFLAGS="-I$(brew --prefix openssl@3)/include"
-export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
-export SSL_CERT_FILE=/opt/homebrew/etc/openssl@3/cert.pem
-export SSL_CERT_DIR=/opt/homebrew/etc/openssl@3/certs
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  export PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+  if command -v brew >/dev/null 2>&1; then
+    export LDFLAGS="-L$(brew --prefix openssl@3)/lib"
+    export CPPFLAGS="-I$(brew --prefix openssl@3)/include"
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@3)"
+  fi
+  export SSL_CERT_FILE=/opt/homebrew/etc/openssl@3/cert.pem
+  export SSL_CERT_DIR=/opt/homebrew/etc/openssl@3/certs
+fi

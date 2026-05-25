@@ -4,7 +4,7 @@
 [core]
   editor = vim --nofork
   legacyheaders = false
-	excludesfile = /Users/jlong/.gitignore
+	excludesfile = ~/.gitignore
 	ignorecase = false
 [push]
   default = tracking
@@ -25,7 +25,7 @@
 [github]
   user = jlong
 [svn]
-  authorsfile = /Users/jlong/.gitusers
+  authorsfile = ~/.gitusers
 [color]
   ui = auto
   status = auto
@@ -45,7 +45,7 @@
   changelog = log --no-merges --date=short --pretty=format:'%Cgreen%cd%Creset %Cred%h%Creset -%C(yellow)%d%Creset %cN: %s'
   mine = log --author=john
   delete-branch = "!f() { git branch -d $1 && git push origin :$1; }; f"
-  ls = !ls -G
+  ls = "!f() { if [ \"$(uname)\" = Darwin ]; then ls -G \"$@\"; else ls --color=auto \"$@\"; fi; }; f"
   push-up = "!f() { branch=$(git st | head -1 | awk '{ print $3 }'); git push --set-upstream origin $branch; }; f"
   cls = !clear
   clear = !clear
