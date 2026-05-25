@@ -185,10 +185,15 @@ if [ "$vim" = true ]; then
 
   install_package neovim
 
-  ln -sfv $SCRIPTPATH/.vim/ $HOME/.vim
+  ln -sfnv $SCRIPTPATH/.vim $HOME/.vim
   ln -sfv $SCRIPTPATH/.vimrc $HOME/.vimrc
   ln -sfv $SCRIPTPATH/.gvimrc $HOME/.gvimrc
   mkdir -p $SCRIPTPATH/.vim-tmp
+
+  # Neovim reads ~/.config/nvim/, not ~/.vim/ or ~/.vimrc — bridge it.
+  mkdir -p $HOME/.config/nvim
+  ln -sfv $SCRIPTPATH/.config/nvim/init.vim $HOME/.config/nvim/init.vim
+  ln -sfv $SCRIPTPATH/.vim/coc-settings.json $HOME/.config/nvim/coc-settings.json
 
   # Install plugins. Prefer nvim since the .aliases file points vi/vim at it.
   if command -v nvim >/dev/null 2>&1; then
@@ -227,7 +232,7 @@ if [ "$tmux" = true ]; then
   fi
 
   ln -sfv $SCRIPTPATH/.tmux.conf $HOME/.tmux.conf
-  ln -sfv $SCRIPTPATH/tmuxinator $HOME/.tmuxinator
+  ln -sfnv $SCRIPTPATH/tmuxinator $HOME/.tmuxinator
 
   ln -sfv $SCRIPTPATH/.tmux-completion $HOME/.tmux-completion
   ln -sfv $SCRIPTPATH/.tmuxinator-completion $HOME/.tmuxinator-completion
@@ -351,7 +356,7 @@ if [ "$bin" = true ]; then
   echo "Bin files"
   #######################
 
-  ln -sfv $SCRIPTPATH/bin $HOME
+  ln -sfnv $SCRIPTPATH/bin $HOME/bin
 fi
 
 if [ "$update_profile" = true ]; then
@@ -403,7 +408,7 @@ if [ "$agentOS" = true ]; then
   echo "Agent OS"
   #######################
 
-  ln -sfv $SCRIPTPATH/.agent-os $HOME
+  ln -sfnv $SCRIPTPATH/.agent-os $HOME/.agent-os
 
   echo ""
 fi
