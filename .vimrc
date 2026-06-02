@@ -242,18 +242,20 @@ function! WipeoutInactiveBuffers()
 endfunction
 command Wipeout call WipeoutInactiveBuffers()
 
-" Project-wide search with Git
-func GitGrep(...)
-  let save = &grepprg
-  set grepprg=git\ grep\ -n\ $*
-  let s = 'grep'
-  for i in a:000
-    let s = s . ' ' . i
-  endfor
-  exe s
-  let &grepprg = save
+" Project-wide search with Git. Use <q-args> so multi-word patterns like
+" `:G file not found` arrive as a single pattern instead of being split
+" into a pattern + path filters.
+func! GitGrep(pattern)
+  let output = systemlist('git grep -n -- ' . shellescape(a:pattern))
+  cgetexpr output
+  if len(output) > 0
+    copen
+  else
+    echo 'GitGrep: no matches for ' . a:pattern
+  endif
+  redraw!
 endfun
-command -nargs=? G silent call GitGrep(<f-args>) | cw | redraw!
+command! -nargs=+ G call GitGrep(<q-args>)
 
 " Visual Mode searching
 xnoremap * :<C-u>call <SID>VSetSearch('/')<CR>/<C-R>=@/<CR><CR>

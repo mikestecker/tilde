@@ -1,8 +1,0 @@
-name: honeycomb
-root: ~/Workspaces/cloudbees/honeycomb
-
-windows:
-  - bash:
-    - bash
-  - vim:
-    - vim

@@ -5,5 +5,5 @@ windows:
   - zsh: zsh
   - vim: vim
   - claude: claude
-  - server: npm run dev
-  - ingest: npm run dev:ingest
+  - server: pnpm exec nx run platform:serve:ngrok --domain=grove-coherence-unfazed.ngrok-free.dev
+  - ingest: pnpm exec nx run platform:inngest:dev

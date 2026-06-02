@@ -1,0 +1,7 @@
+name: o-product
+root: ~/Documents/ContextStore/product-space
+
+windows:
+  - zsh: clear
+  - vim: vi
+  - claude: claude

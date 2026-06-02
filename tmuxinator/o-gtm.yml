@@ -1,0 +1,7 @@
+name: o-gtm
+root: ~/Documents/ContextStore/gtm-space
+
+windows:
+  - zsh: clear
+  - vim: vi
+  - claude: claude

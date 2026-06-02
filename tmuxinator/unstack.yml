@@ -1,9 +1,0 @@
-# /Users/jlong/.tmuxinator/unstack.yml
-
-name: unstack
-root: ~/Workspaces/unstack/core
-
-windows:
-  - zsh: cls
-  - vim: vim
-  - server: cls

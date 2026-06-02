@@ -1,0 +1,10 @@
+# /Users/john/.tmuxinator/o-prototype.yml
+
+name: o-prototype
+root: ~/Workspaces/Opine/prototype
+
+windows:
+  - zsh: zsh
+  - vim: vim
+  - claude: claude
+  - storybook: pnpm exec nx run platform:storybook

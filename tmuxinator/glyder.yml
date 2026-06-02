@@ -1,8 +1,0 @@
-name: glyder
-root: ~/Workspaces/cloudbees/glyder
-
-windows:
-  - bash:
-    - cls
-  - vim:
-    - vim

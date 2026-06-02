@@ -1,9 +1,0 @@
-# /Users/jlong/.tmuxinator/gpd.yml
-
-name: gpd
-root: ~/Workspaces/Gierd/product-design
-
-windows:
-  - zsh:
-  - vim: vim
-  - claude: claude

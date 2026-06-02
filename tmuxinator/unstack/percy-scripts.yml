@@ -1,9 +1,0 @@
-# /Users/jlong/.tmuxinator/unstack/percy-scripts.yml
-
-name: unstack/percy-scripts
-root: ~/Workspaces/unstack/percy-scripts
-
-windows:
-  - zsh: cls
-  - vim: vim
-  - server: cls
