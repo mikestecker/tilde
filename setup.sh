@@ -173,7 +173,9 @@ if [ "$node" = true ]; then
   # coc.nvim installs its extensions in a worker thread, where the global Web
   # Crypto `crypto` object is undefined until Node 20 (it exists only on the
   # main thread in Node 18). Ubuntu's apt ships Node 18, so coc-tsserver fails
-  # to install with "ReferenceError: crypto is not defined". Require Node 20+.
+  # to install with "ReferenceError: crypto is not defined". We install the
+  # current LTS (Node 24) and require at least the version that fixes this.
+  NODE_LTS_MAJOR=24
   NODE_MIN_MAJOR=20
 
   node_major() {
@@ -188,8 +190,8 @@ if [ "$node" = true ]; then
         brew install node
         ;;
       Linux)
-        # apt's nodejs is too old; pull Node 20 LTS from NodeSource.
-        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+        # apt's nodejs is too old; pull the current Node LTS from NodeSource.
+        curl -fsSL "https://deb.nodesource.com/setup_${NODE_LTS_MAJOR}.x" | sudo -E bash -
         sudo apt-get install -y nodejs
         ;;
       *)
