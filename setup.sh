@@ -170,12 +170,39 @@ if [ "$node" = true ]; then
   echo "Node"
   #######################
 
-  if ! command -v node >/dev/null 2>&1; then
-    install_package nodejs
-    # On Ubuntu, npm ships as a separate package.
-    if [[ "$OS" == "Linux" ]] && ! command -v npm >/dev/null 2>&1; then
-      install_package npm
-    fi
+  # coc.nvim installs its extensions in a worker thread, where the global Web
+  # Crypto `crypto` object is undefined until Node 20 (it exists only on the
+  # main thread in Node 18). Ubuntu's apt ships Node 18, so coc-tsserver fails
+  # to install with "ReferenceError: crypto is not defined". Require Node 20+.
+  NODE_MIN_MAJOR=20
+
+  node_major() {
+    command -v node >/dev/null 2>&1 || { echo 0; return; }
+    node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0
+  }
+
+  if [ "$(node_major)" -lt "$NODE_MIN_MAJOR" ]; then
+    case "$OS" in
+      Darwin)
+        # Homebrew's node formula tracks current LTS.
+        brew install node
+        ;;
+      Linux)
+        # apt's nodejs is too old; pull Node 20 LTS from NodeSource.
+        curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+        ;;
+      *)
+        echo "Unknown OS '$OS' — please install Node >= $NODE_MIN_MAJOR manually"
+        ;;
+    esac
+  else
+    echo "Node $(node --version) already satisfies >= $NODE_MIN_MAJOR — skipping"
+  fi
+
+  # On Ubuntu, apt's nodejs ships npm separately; NodeSource bundles it.
+  if [[ "$OS" == "Linux" ]] && ! command -v npm >/dev/null 2>&1; then
+    install_package npm
   fi
 fi
 
