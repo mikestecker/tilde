@@ -10,5 +10,8 @@
   ],
   "tsserver.formatOnType": true,
   "coc.preferences.formatOnType": true,
-  "eslint.migration.2_x": "off"
+  "eslint.migration.2_x": "off",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }
