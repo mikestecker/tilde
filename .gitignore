@@ -33,3 +33,5 @@ xcuserdata
 .config/raycast/extensions/*
 
 .config/coc/extensions/node_modules/*
+
+**/.claude/settings.local.json

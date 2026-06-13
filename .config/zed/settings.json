@@ -7,6 +7,18 @@
 // custom settings, run the `open default settings` command
 // from the command palette or from `Zed` application menu.
 {
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "agent_servers": {
     "your_agent": {
       "command": "path_to_executable",
@@ -23,6 +35,7 @@
     "edit_prediction_provider": "zed"
   },
   "agent": {
+    "dock": "right",
     "default_model": {
       "provider": "openai",
       "model": "gpt-4o"
