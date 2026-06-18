@@ -2,8 +2,10 @@ name: opine
 root: ~/Workspaces/Opine/platform
 
 windows:
-  - zsh: zsh
+  - zsh: cls
   - vim: vim
   - claude: claude
+  - prototype: pnpm exec nx run prototype
+  - storybook: pnpm exec nx run platform:storybook
   - server: pnpm exec nx run platform:serve:ngrok --domain=grove-coherence-unfazed.ngrok-free.dev
   - ingest: pnpm exec nx run platform:inngest:dev
